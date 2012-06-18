@@ -13,8 +13,14 @@ build:
 install: build
 	$(INSTALL) metadata.desktop $(DESTDIR)/$(KSERV)/$(APP_NAME).desktop
 	$(INSTALL) metadata.desktop $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/metadata.desktop
-	$(INSTALL) $(CODE)/* $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(CODE)/*
-	$(INSTALL) $(ICONS)/* $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(ICONS)/*
+	$(INSTALL) $(CODE)/main.py $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(CODE)/main.py
+	$(INSTALL) $(CODE)/AppletSettings.py $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(CODE)/AppletSettings.py
+	$(INSTALL) $(CODE)/Blank.py $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(CODE)/Blank.py
+	$(INSTALL) $(CODE)/Functions.py $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(CODE)/Functions.py
+	$(INSTALL) $(ICONS)/alarm.png $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(ICONS)/alarm.png
+	$(INSTALL) $(ICONS)/alarm1.png $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(ICONS)/alarm1.png
+	$(INSTALL) $(ICONS)/alarm2.png $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(ICONS)/alarm2.png
+	$(INSTALL) $(ICONS)/alarm_disabled.png $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(ICONS)/alarm_disabled.png
 
 clean:
 	rm -rf $(DESTDIR)/$(KSERV)/$(APP_NAME).desktop
