@@ -63,7 +63,7 @@ class Blank(QDialog):
 		self.setLayout(self.layout)
 
 	def searchPath(self):
-		fileName = QFileDialog.getOpenFileName(self, 'Path_to_sound', '~', "Sound (*.wav *.ogg *.mp3)")
+		fileName = QFileDialog.getOpenFileName(self, 'Path_to_sound', '~', "Sound (*.wav *.ogg)")
 		name_ = fileName.toLocal8Bit().data()
 		if not stat.S_ISLNK(os.lstat(name_).st_mode) and os.access(name_, os.R_OK) :
 			self.soundPath.setText(fileName)
