@@ -4,7 +4,7 @@ Release: 1%{?dist}
 Summary: Simple AlarmClock plasmoid.
 Summary(ru): Простой плазмоид-Будильник.
 Group: Applications/Date and Time
-License: GPL
+License: GPLv2+
 Source0: http://cloud.github.com/downloads/F1ash/kde-plasma-alarm-clock/%{name}-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 URL: https://github.com/F1ash/plasmaGreatAdvice
