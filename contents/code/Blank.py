@@ -16,6 +16,7 @@ class Blank(QDialog):
 
 		if self.name is not None :
 			self.Settings.beginGroup(self.name)
+			msg = self.Settings.value('Message', '').toString()
 			_time = str(self.Settings.value('Time', '').toString())
 			if len(_time.split(':'))==2 :
 				_h, _m = _time.split(':')
@@ -42,11 +43,18 @@ class Blank(QDialog):
 		#self.timeBox.setMaximumWidth(80)
 		self.layout.addWidget(self.timeBox, 1, 1, Qt.AlignRight)
 
+		self.msgLabel = QLabel("Alarm message :")
+		self.layout.addWidget(self.msgLabel, 2, 0)
+		self.alarmMsg = QLineEdit()
+		self.alarmMsg.setText('' if self.name is None else msg)
+		self.alarmMsg.setMinimumWidth(220)
+		self.layout.addWidget(self.alarmMsg, 2, 1)
+
 		self.pathButton = QPushButton("Path")
 		self.pathButton.clicked.connect(self.searchPath)
-		self.layout.addWidget(self.pathButton, 2, 0)
+		self.layout.addWidget(self.pathButton, 3, 0)
 		self.soundPath = QLineEdit('' if path is None else path)
-		self.layout.addWidget(self.soundPath, 2, 1)
+		self.layout.addWidget(self.soundPath, 3, 1)
 
 		self.playButton = QPushButton("Play")
 		self.playButton.clicked.connect(self.playPath)
@@ -95,6 +103,7 @@ class Blank(QDialog):
 				self.prnt.alarmList.takeItem(self.prnt.alarmList.row(item))
 				self.Settings.remove(self.name)
 		self.Settings.beginGroup(self.nameAlarm.text())
+		self.Settings.setValue('Message', self.alarmMsg.text())
 		_time = self.timeBox.time()
 		hours = '0' + str(_time.hour()) if _time.hour() < 10 else str(_time.hour())
 		minutes = '0' + str(_time.minute()) if _time.minute() < 10 else str(_time.minute())

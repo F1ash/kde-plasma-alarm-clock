@@ -10,15 +10,17 @@ def getAlarmTimesList(Settings):
 			l.append(time)
 	return l
 
-def getSoundsPath(Settings, alarmTime):
+def getAlarmData(Settings, alarmTime):
 	sounds = []
+	msgs = []
 	for _name in Settings.childGroups() :
 		Settings.beginGroup(_name)
 		time = str(Settings.value('Time', '').toString())
 		if time == alarmTime :
 			sounds.append(Settings.value('Sound', '').toString())
+			msgs.append(Settings.value('Message', '').toString())
 		Settings.endGroup()
-	return sounds
+	return sounds, msgs
 
 def nextAlarmTime(currTime, alarmTimesList):
 	nextAlarm = max(alarmTimesList)
@@ -53,7 +55,7 @@ def alarmTime(Settings, alarmTimesList):
 	pause = getPause((_currHour, _currMin), nextAlarm)
 	#print currTime, 'currTime', pause, nextAlarm
 	if currTime in alarmTimesList :
-		sounds = getSoundsPath(Settings, currTime)
-		return True, '__there is message place__', sounds, nextAlarm, pause
+		sounds, msgs = getAlarmData(Settings, currTime)
+		return True, msgs, sounds, nextAlarm, pause
 	else :
-		return False, '__there is message place__', None, nextAlarm, pause
+		return False, None, None, nextAlarm, pause

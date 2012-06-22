@@ -2,7 +2,7 @@
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from PyKDE4.kdeui import KPageDialog, KDialog
+from PyKDE4.kdeui import KPageDialog, KDialog, KNotification
 from PyKDE4.plasma import Plasma
 from PyKDE4 import plasmascript
 import os.path, os
@@ -37,9 +37,9 @@ class CheckAlarmList(QThread):
 
 	def run(self):
 		while self.runKey :
-			alarmNow, msg, sounds, newAlarmTime, pause = alarmTime(self.prnt.Settings, self.prnt.alarmTimesList)
+			alarmNow, msgs, sounds, newAlarmTime, pause = alarmTime(self.prnt.Settings, self.prnt.alarmTimesList)
 			if alarmNow :
-				self.prnt.alarm.emit(msg, sounds)
+				self.prnt.alarm.emit(msgs, sounds)
 			if self.nextAlarm != newAlarmTime :
 				self.nextAlarm = newAlarmTime
 				self.prnt.nextAlarm.emit('<b>Next alarm in ' + newAlarmTime +'</b>')
@@ -51,7 +51,7 @@ class CheckAlarmList(QThread):
 		self.stop()
 
 class plasmaAlarmClock(plasmascript.Applet):
-	alarm = pyqtSignal(str, list)
+	alarm = pyqtSignal(list, list)
 	nextAlarm = pyqtSignal(str)
 	def __init__(self, parent = None):
 		plasmascript.Applet.__init__(self, parent)
@@ -120,14 +120,21 @@ class plasmaAlarmClock(plasmascript.Applet):
 			self.checkAlarmList = CheckAlarmList(self)
 			self.checkAlarmList.start()
 
-	def showAlarm(self, msg, sounds):
-		#print msg, sounds, 'alarmed'
+	def showAlarm(self, msgs, sounds):
+		#print msgs, sounds, 'alarmed'
 		for sound in sounds :
 			self.play = QProcess()
 			if not os.path.isfile(sound.toLocal8Bit().data()) :
 				sound = QString('/usr/share/sounds/pop.wav')
 				#print (sound)
 			self.play.start('/usr/bin/play', QStringList() << sound)
+		for msg in msgs :
+			if msg.isEmpty() : continue
+			notify = KNotification.event(\
+						KNotification.Notification, \
+						'Alarm Clock', \
+						msg, \
+						QPixmap(self.alarmIconPath))
 
 	def setNewToolTip(self, msg = ''):
 		Plasma.ToolTipManager.self().setContent( \
