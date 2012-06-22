@@ -5,8 +5,9 @@ def getAlarmTimesList(Settings):
 	for _name in Settings.childGroups() :
 		Settings.beginGroup(_name)
 		time = str(Settings.value('Time').toString())
+		enable = True if Settings.value('Enable', 'False') == 'True' else False
 		Settings.endGroup()
-		if len(time.split(':'))==2 :
+		if enable and len(time.split(':'))==2 :
 			l.append(time)
 	return l
 
@@ -23,10 +24,12 @@ def getAlarmData(Settings, alarmTime):
 	return sounds, msgs
 
 def nextAlarmTime(currTime, alarmTimesList):
-	nextAlarm = max(alarmTimesList)
+	if len(alarmTimesList) :
+		nextAlarm = max(alarmTimesList)
+	else : return None
 	outAlarmList = True
 	_currHour, _currMin = currTime
-	#print alarmTimesList
+	print alarmTimesList
 	for alarm in alarmTimesList :
 		_alarmHour, _alarmMin = alarm.split(':')
 		if int(_currHour) <= int(_alarmHour) :
@@ -38,12 +41,13 @@ def nextAlarmTime(currTime, alarmTimesList):
 
 def getPause(currTime, nextAlarm):
 	pause = 60
-	_currHour, _currMin = currTime
-	_nextAlarmHour, _nextAlarmMin = nextAlarm.split(':')
-	#print _currHour, _currMin, ':', _nextAlarmHour, _nextAlarmMin
-	if int(_nextAlarmHour) - int(_currHour) in (0, -23) :
-		if int(_nextAlarmMin) - int(_currMin) == 1 :
-			pause = pause - int(strftime("%S", localtime())) + 1
+	if nextAlarm is not None :
+		_currHour, _currMin = currTime
+		_nextAlarmHour, _nextAlarmMin = nextAlarm.split(':')
+		#print _currHour, _currMin, ':', _nextAlarmHour, _nextAlarmMin
+		if int(_nextAlarmHour) - int(_currHour) in (0, -23) :
+			if int(_nextAlarmMin) - int(_currMin) == 1 :
+				pause = pause - int(strftime("%S", localtime())) + 1
 	return pause*1000
 
 def alarmTime(Settings, alarmTimesList):
