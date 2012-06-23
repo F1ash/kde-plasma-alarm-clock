@@ -3,6 +3,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyKDE4.kdeui import KPageDialog, KDialog, KNotification
+from PyKDE4.kdecore import KStandardDirs as KSD
 from PyKDE4.plasma import Plasma
 from PyKDE4 import plasmascript
 import os.path, os
@@ -58,20 +59,22 @@ class plasmaAlarmClock(plasmascript.Applet):
 	nextAlarm = pyqtSignal(str)
 	def __init__(self, parent = None):
 		plasmascript.Applet.__init__(self, parent)
+		self.name = 'kde-plasma-alarm-clock'
+		self.Settings = QSettings(self.name, self.name)
 
-		self.kdehome = '/usr/share/kde4/apps/plasma/plasmoids/kde-plasma-alarm-clock/contents/'
-		self.Settings = QSettings('kde-plasma-alarm-clock', 'kde-plasma-alarm-clock')
+		mark = 'plasma/plasmoids/' + self.name
+		self.plasmaPath = KSD().locate("data", mark)
+		if self.plasmaPath == '' or not os.path.exists(self.plasmaPath) :
+			self.plasmaPath = KSD().locateLocal('data', mark)
+		if self.plasmaPath == '' or not os.path.exists(self.plasmaPath) :
+			self.plasmaPath = os.path.join(os.getcwd(), self.name)
+		self.appletWD = os.path.join(str(self.plasmaPath), 'contents')
 
-		if os.path.exists(self.kdehome + 'icons/alarm.png') :
-			self.alarmIconPath = self.kdehome + 'icons/alarm.png'
-			self.alarm1IconPath = self.kdehome + 'icons/alarm1.png'
-			self.alarm2IconPath = self.kdehome + 'icons/alarm2.png'
-			self.alarm_disabledIconPath = self.kdehome + 'icons/alarm_disabled.png'
-		else :
-			self.alarmIconPath = os.path.join(os.getcwd(), 'kde-plasma-alarm-clock/contents/icons/alarm.png')
-			self.alarm1IconPath = os.path.join(os.getcwd(), 'kde-plasma-alarm-clock/contents/icons/alarm1.png')
-			self.alarm2IconPath = os.path.join(os.getcwd(), 'kde-plasma-alarm-clock/contents/icons/alarm2.png')
-			self.alarm_disabledIconPath = os.path.join(os.getcwd(), 'kde-plasma-alarm-clock/contents/icons/alarm_disabled.png')
+		self.alarmIconPath = self.appletWD + '/icons/alarm.png'
+		self.alarm1IconPath = self.appletWD + '/icons/alarm1.png'
+		self.alarm2IconPath = self.appletWD + '/icons/alarm2.png'
+		self.alarm_disabledIconPath = self.appletWD + '/icons/alarm_disabled.png'
+		#print self.alarmIconPath, ':', self.appletWD
 
 	def initVar(self):
 		if self.Settings.value('Alarm Clock Enable', 'True') == 'True' :
