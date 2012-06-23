@@ -44,12 +44,14 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.Settings = QSettings(self.name, self.name)
 
 		mark = 'plasma/plasmoids/' + self.name
-		self.plasmaPath = KSD().locate("data", mark)
-		if self.plasmaPath == '' or not os.path.isfile(self.plasmaPath) :
-			self.plasmaPath = KSD().locateLocal('data', mark)
-		if self.plasmaPath == '' or not os.path.isfile(self.plasmaPath) :
+		self.plasmaPath = ''
+		for d in KSD().resourceDirs('data') :
+			_path = os.path.join(str(d), mark)
+			if os.path.isfile(os.path.join(_path, 'contents/icons/alarm.png')) :
+				self.plasmaPath = _path
+		if self.plasmaPath == '' :
 			self.plasmaPath = os.path.join(os.getcwd(), self.name)
-		self.appletWD = os.path.join(str(self.plasmaPath), 'contents')
+		self.appletWD = os.path.join(self.plasmaPath, 'contents')
 
 		self.alarmIconPath = self.appletWD + '/icons/alarm.png'
 		self.alarm1IconPath = self.appletWD + '/icons/alarm1.png'
@@ -161,9 +163,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.dialog.done(0)
 
 	def __del__(self):
-		if hasattr(self, 'iconBlink') :
-			self.iconBlink.stop()
-			del self.iconBlink
+		self.timer.stop()
 		if hasattr(self, 'checkAlarmList') :
 			self.checkAlarmList.stop()
 			del self.checkAlarmList
