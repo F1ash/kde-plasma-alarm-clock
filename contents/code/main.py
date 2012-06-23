@@ -10,25 +10,6 @@ import os.path, os
 from AppletSettings import AppletSettings
 from Functions import *
 
-class IconBlink(QThread):
-	def __init__(self, parent = None):
-		QThread.__init__(self, parent)
-		self.prnt = parent
-		self.runKey = True
-
-	def run(self):
-		while self.runKey :
-			self.prnt.alarmIcon.setIcon(self.prnt.alarm2IconPath)
-			if self.runKey :
-				self.msleep(250)
-				self.prnt.alarmIcon.setIcon(self.prnt.alarm1IconPath)
-				if self.runKey : self.msleep(3750)
-
-	def stop(self): self.runKey = False
-
-	def __del__(self):
-		self.stop()
-
 class CheckAlarmList(QThread):
 	def __init__(self, parent = None):
 		QThread.__init__(self, parent)
@@ -64,9 +45,9 @@ class plasmaAlarmClock(plasmascript.Applet):
 
 		mark = 'plasma/plasmoids/' + self.name
 		self.plasmaPath = KSD().locate("data", mark)
-		if self.plasmaPath == '' or not os.path.exists(self.plasmaPath) :
+		if self.plasmaPath == '' or not os.path.isfile(self.plasmaPath) :
 			self.plasmaPath = KSD().locateLocal('data', mark)
-		if self.plasmaPath == '' or not os.path.exists(self.plasmaPath) :
+		if self.plasmaPath == '' or not os.path.isfile(self.plasmaPath) :
 			self.plasmaPath = os.path.join(os.getcwd(), self.name)
 		self.appletWD = os.path.join(str(self.plasmaPath), 'contents')
 
@@ -107,6 +88,8 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.alarm.connect(self.showAlarm)
 		self.nextAlarm.connect(self.setNewToolTip)
 		self.alarmIcon.clicked.connect(self.changeActivity)
+		self.timer = QTimer()
+		self.timer.timeout.connect(self.blink)
 		if self.alarmed : self.alarmIcon.clicked.emit()
 		else : self.setNewToolTip('Stopped')
 
@@ -114,17 +97,21 @@ class plasmaAlarmClock(plasmascript.Applet):
 		if hasattr(self, 'checkAlarmList') and self.checkAlarmList is not None :
 			self.checkAlarmList.stop()
 			del self.checkAlarmList
-			if hasattr(self, 'iconBlink') and self.iconBlink is not None :
-				self.iconBlink.stop()
-				del self.iconBlink
+			self.timer.stop()
 			self.alarmIcon.setIcon(self.alarm_disabledIconPath)
 			self.setNewToolTip('Stopped')
 		else :
-			if not hasattr(self, 'iconBlink') or self.iconBlink is None :
-				self.iconBlink = IconBlink(self)
-				self.iconBlink.start()
+			self.alarmIcon.setIcon(self.alarm1IconPath)
+			self.timer.start(3750)
 			self.checkAlarmList = CheckAlarmList(self)
 			self.checkAlarmList.start()
+
+	def blink(self):
+		self.alarmIcon.setIcon(self.alarm2IconPath)
+		QTimer.singleShot(250, self.unBlink)
+
+	def unBlink(self):
+		self.alarmIcon.setIcon(self.alarm1IconPath)
 
 	def showAlarm(self, msgs, sounds):
 		#print msgs, sounds, 'alarmed'
