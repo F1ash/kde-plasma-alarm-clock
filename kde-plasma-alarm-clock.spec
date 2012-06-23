@@ -1,5 +1,5 @@
 Name: kde-plasma-alarm-clock
-Version: 1.2
+Version: 1.3
 Release: 1%{?dist}
 Summary: Simple AlarmClock plasmoid.
 Summary(ru): Простой плазмоид-Будильник.
@@ -42,7 +42,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 
-* Sat Jun 23 2012 Fl@sh <kaperang07@gmail.com> - 1.2-1
+* Sat Jun 23 2012 Fl@sh <kaperang07@gmail.com> - 1.3-1
 - version updated
 
 * Fri Jun 22 2012 Fl@sh <kaperang07@gmail.com> - 1.1-1
