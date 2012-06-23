@@ -29,7 +29,7 @@ def nextAlarmTime(currTime, alarmTimesList):
 	else : return None
 	outAlarmList = True
 	_currHour, _currMin = currTime
-	print alarmTimesList
+	#print alarmTimesList
 	for alarm in alarmTimesList :
 		_alarmHour, _alarmMin = alarm.split(':')
 		if int(_currHour) <= int(_alarmHour) :
