@@ -164,6 +164,10 @@ class plasmaAlarmClock(plasmascript.Applet):
 
 	def __del__(self):
 		self.timer.stop()
+		self.alarm.disconnect(self.showAlarm)
+		self.nextAlarm.disconnect(self.setNewToolTip)
+		self.alarmIcon.clicked.disconnect(self.changeActivity)
+		self.timer.timeout.disconnect(self.blink)
 		if hasattr(self, 'checkAlarmList') :
 			self.checkAlarmList.stop()
 			del self.checkAlarmList

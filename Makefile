@@ -6,13 +6,14 @@ KSERV=share/kde4/services
 PLASMA=plasma/plasmoids
 CODE=contents/code
 ICONS=contents/icons
+ICON_PATH=/usr/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(ICONS)/alarm.png
 
 build:
 	@echo "Nothing to build"
 
 install: build
 	$(INSTALL) metadata.desktop $(DESTDIR)/$(KSERV)/$(APP_NAME).desktop
-	$(INSTALL) metadata.desktop $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/metadata.desktop
+	sed -i 's|Icon=.*|Icon='$(ICON_PATH)'|' $(DESTDIR)/$(KSERV)/$(APP_NAME).desktop
 	$(INSTALL) $(CODE)/main.py $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(CODE)/main.py
 	$(INSTALL) $(CODE)/AppletSettings.py $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(CODE)/AppletSettings.py
 	$(INSTALL) $(CODE)/Blank.py $(DESTDIR)/$(KAPPS)/$(PLASMA)/$(APP_NAME)/$(CODE)/Blank.py
