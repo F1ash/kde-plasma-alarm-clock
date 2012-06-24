@@ -19,9 +19,10 @@ class CheckAlarmList(QThread):
 
 	def run(self):
 		while self.runKey :
-			alarmNow, msgs, sounds, newAlarmTime, pause = alarmTime(self.prnt.Settings, self.prnt.alarmTimesList)
+			alarmNow, msgs, sounds, cmds, newAlarmTime, pause = \
+					alarmTime(self.prnt.Settings, self.prnt.alarmTimesList)
 			if alarmNow :
-				self.prnt.alarm.emit(msgs, sounds)
+				self.prnt.alarm.emit(msgs, sounds, cmds)
 			if self.nextAlarm != newAlarmTime :
 				self.nextAlarm = newAlarmTime
 				if newAlarmTime is None :
@@ -36,7 +37,7 @@ class CheckAlarmList(QThread):
 		self.stop()
 
 class plasmaAlarmClock(plasmascript.Applet):
-	alarm = pyqtSignal(list, list)
+	alarm = pyqtSignal(list, list, list)
 	nextAlarm = pyqtSignal(str)
 	def __init__(self, parent = None):
 		plasmascript.Applet.__init__(self, parent)
@@ -104,7 +105,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 			self.setNewToolTip('Stopped')
 		else :
 			self.alarmIcon.setIcon(self.alarm1IconPath)
-			self.timer.start(3750)
+			self.timer.start(1000)
 			self.checkAlarmList = CheckAlarmList(self)
 			self.checkAlarmList.start()
 
@@ -115,14 +116,19 @@ class plasmaAlarmClock(plasmascript.Applet):
 	def unBlink(self):
 		self.alarmIcon.setIcon(self.alarm1IconPath)
 
-	def showAlarm(self, msgs, sounds):
-		#print msgs, sounds, 'alarmed'
+	def showAlarm(self, msgs, sounds, cmds):
+		#print msgs, sounds, cmds, 'alarmed'
 		for sound in sounds :
 			self.play = QProcess()
 			if not os.path.isfile(sound.toLocal8Bit().data()) :
 				sound = QString('/usr/share/sounds/pop.wav')
 				#print (sound)
 			self.play.start('/usr/bin/play', QStringList() << sound)
+		for cmd in cmds :
+			#print (cmd)
+			if cmd.isEmpty() : continue
+			self.play = QProcess()
+			self.play.start('/usr/bin/sh', QStringList() << cmd)
 		for msg in msgs :
 			if msg.isEmpty() : continue
 			notify = KNotification.event(\

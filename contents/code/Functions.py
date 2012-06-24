@@ -14,14 +14,16 @@ def getAlarmTimesList(Settings):
 def getAlarmData(Settings, alarmTime):
 	sounds = []
 	msgs = []
+	cmds = []
 	for _name in Settings.childGroups() :
 		Settings.beginGroup(_name)
 		time = str(Settings.value('Time', '').toString())
 		if time == alarmTime :
 			sounds.append(Settings.value('Sound', '').toString())
 			msgs.append(Settings.value('Message', '').toString())
+			cmds.append(Settings.value('Command', '').toString())
 		Settings.endGroup()
-	return sounds, msgs
+	return sounds, msgs, cmds
 
 def nextAlarmTime(currTime, alarmTimesList):
 	if len(alarmTimesList) :
@@ -59,7 +61,7 @@ def alarmTime(Settings, alarmTimesList):
 	pause = getPause((_currHour, _currMin), nextAlarm)
 	#print currTime, 'currTime', pause, nextAlarm
 	if currTime in alarmTimesList :
-		sounds, msgs = getAlarmData(Settings, currTime)
-		return True, msgs, sounds, nextAlarm, pause
+		sounds, msgs, cmds = getAlarmData(Settings, currTime)
+		return True, msgs, sounds, cmds, nextAlarm, pause
 	else :
-		return False, None, None, nextAlarm, pause
+		return False, None, None, None, nextAlarm, pause

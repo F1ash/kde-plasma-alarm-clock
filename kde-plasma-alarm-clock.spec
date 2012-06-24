@@ -1,5 +1,5 @@
 Name: kde-plasma-alarm-clock
-Version: 1.3
+Version: 1.5
 Release: 1%{?dist}
 Summary: Simple AlarmClock plasmoid.
 Summary(ru): Простой плазмоид-Будильник.
@@ -15,12 +15,14 @@ Requires: python, PyQt4, PyKDE4, sox
 %description
 kde-plasma-alarm-clock
 Simple AlarmClock plasmoid. Support list of alarms,
-custom sound and message for each alarm node.
+custom sound, message and command for each alarm node.
+Works without Akonadi.
 
 %description -l ru
 kde-plasma-alarm-clock
 Простой плазмоид-Будильник. Может будить по назначенному списку,
-для каждого сигнала можно задать свой звук и сообщение.
+для каждого сигнала можно задать свой звук, сообщение и команду.
+Не нуждается в Akonadi.
 
 %prep
 %setup -q
@@ -41,6 +43,10 @@ make install DESTDIR=$RPM_BUILD_ROOT/usr
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+
+* Sun Jun 24 2012 Fl@sh <kaperang07@gmail.com> - 1.5-1
+- improved description
+- version updated
 
 * Sat Jun 23 2012 Fl@sh <kaperang07@gmail.com> - 1.3-1
 - version updated

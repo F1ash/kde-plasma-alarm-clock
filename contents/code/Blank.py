@@ -17,6 +17,7 @@ class Blank(QDialog):
 		if self.name is not None :
 			self.Settings.beginGroup(self.name)
 			msg = self.Settings.value('Message', '').toString()
+			cmd = self.Settings.value('Command', '').toString()
 			_time = str(self.Settings.value('Time', '').toString())
 			if len(_time.split(':'))==2 :
 				_h, _m = _time.split(':')
@@ -50,23 +51,30 @@ class Blank(QDialog):
 		self.alarmMsg.setMinimumWidth(220)
 		self.layout.addWidget(self.alarmMsg, 2, 1)
 
+		self.commandLabel = QLabel("Command :")
+		self.layout.addWidget(self.commandLabel, 3, 0)
+		self.alarmCmd = QLineEdit()
+		self.alarmCmd.setText('' if self.name is None else cmd)
+		self.alarmCmd.setMinimumWidth(220)
+		self.layout.addWidget(self.alarmCmd, 3, 1)
+
 		self.pathButton = QPushButton("Path")
 		self.pathButton.clicked.connect(self.searchPath)
-		self.layout.addWidget(self.pathButton, 3, 0)
+		self.layout.addWidget(self.pathButton, 4, 0)
 		self.soundPath = QLineEdit('' if path is None else path)
-		self.layout.addWidget(self.soundPath, 3, 1)
+		self.layout.addWidget(self.soundPath, 4, 1)
 
 		self.playButton = QPushButton("Play")
 		self.playButton.clicked.connect(self.playPath)
-		self.layout.addWidget(self.playButton, 4, 0)
+		self.layout.addWidget(self.playButton, 5, 0)
 
 		self.okButton = QPushButton('&Ok')
 		self.okButton.clicked.connect(self.ok)
-		self.layout.addWidget(self.okButton, 4, 1, Qt.AlignLeft)
+		self.layout.addWidget(self.okButton, 5, 1, Qt.AlignLeft)
 
 		self.cancelButton = QPushButton('&Cancel')
 		self.cancelButton.clicked.connect(self.cancel)
-		self.layout.addWidget(self.cancelButton, 4, 1, Qt.AlignRight)
+		self.layout.addWidget(self.cancelButton, 5, 1, Qt.AlignRight)
 
 		self.setLayout(self.layout)
 
@@ -105,6 +113,7 @@ class Blank(QDialog):
 		if not self.nameAlarm.text().isEmpty() :
 			self.Settings.beginGroup(self.nameAlarm.text())
 			self.Settings.setValue('Message', self.alarmMsg.text())
+			self.Settings.setValue('Command', self.alarmCmd.text())
 			_time = self.timeBox.time()
 			hours = '0' + str(_time.hour()) if _time.hour() < 10 else str(_time.hour())
 			minutes = '0' + str(_time.minute()) if _time.minute() < 10 else str(_time.minute())
