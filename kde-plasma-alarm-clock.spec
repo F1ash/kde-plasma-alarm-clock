@@ -3,10 +3,9 @@ Version: 1.5
 Release: 1%{?dist}
 Summary: Simple AlarmClock plasmoid.
 Summary(ru): Простой плазмоид-Будильник.
-Group: Applications/Date and Time
+Group: Applications/Productivity
 License: GPLv2+
 Source0: http://cloud.github.com/downloads/F1ash/kde-plasma-alarm-clock/%{name}-%{version}.tar.bz2
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 URL: https://github.com/F1ash/plasmaGreatAdvice
 BuildArch: noarch
 
@@ -39,11 +38,7 @@ make install DESTDIR=$RPM_BUILD_ROOT/usr
 %{_datadir}/kde4/apps/plasma/plasmoids/%{name}/*
 %dir %{_datadir}/kde4/apps/plasma/plasmoids/%{name}
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %changelog
-
 * Sun Jun 24 2012 Fl@sh <kaperang07@gmail.com> - 1.5-1
 - improved description
 - version updated
