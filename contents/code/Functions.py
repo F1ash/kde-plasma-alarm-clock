@@ -62,6 +62,6 @@ def alarmTime(Settings, alarmTimesList):
 	#print currTime, 'currTime', pause, nextAlarm
 	if currTime in alarmTimesList :
 		sounds, msgs, cmds = getAlarmData(Settings, currTime)
-		return True, msgs, sounds, cmds, nextAlarm, pause
+		return True, msgs, sounds, cmds, nextAlarm, pause, currTime
 	else :
-		return False, None, None, None, nextAlarm, pause
+		return False, None, None, None, nextAlarm, pause, currTime

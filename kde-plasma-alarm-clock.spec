@@ -1,5 +1,5 @@
 Name: kde-plasma-alarm-clock
-Version: 1.5
+Version: 1.6
 Release: 1%{?dist}
 Summary: Simple AlarmClock plasmoid.
 Summary(ru): Простой плазмоид-Будильник.
@@ -9,7 +9,8 @@ Source0: http://cloud.github.com/downloads/F1ash/kde-plasma-alarm-clock/%{name}-
 URL: https://github.com/F1ash/plasmaGreatAdvice
 BuildArch: noarch
 
-Requires: python, PyQt4, PyKDE4, sox
+Requires: PyKDE4, sox
+BuildRequires: kde-filesystem
 
 %description
 kde-plasma-alarm-clock
@@ -33,12 +34,14 @@ make %{?_smp_mflags}
 make install DESTDIR=$RPM_BUILD_ROOT/usr
 
 %files
-%defattr(-,root,root)
-%{_datadir}/kde4/services/%{name}.desktop
-%{_datadir}/kde4/apps/plasma/plasmoids/%{name}/*
-%dir %{_datadir}/kde4/apps/plasma/plasmoids/%{name}
+%{_kde4_datadir}/kde4/services/%{name}.desktop
+%{_kde4_appsdir}/plasma/plasmoids/%{name}
 
 %changelog
+* Wed Sep 26 2012 Fl@sh <kaperang07@gmail.com> - 1.6-1
+- fixed package requires
+- version updated
+
 * Sun Jun 24 2012 Fl@sh <kaperang07@gmail.com> - 1.5-1
 - improved description
 - version updated

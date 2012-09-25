@@ -19,16 +19,17 @@ class CheckAlarmList(QThread):
 
 	def run(self):
 		while self.runKey :
-			alarmNow, msgs, sounds, cmds, newAlarmTime, pause = \
+			alarmNow, msgs, sounds, cmds, newAlarmTime, pause, currTime = \
 					alarmTime(self.prnt.Settings, self.prnt.alarmTimesList)
 			if alarmNow :
 				self.prnt.alarm.emit(msgs, sounds, cmds)
 			if self.nextAlarm != newAlarmTime :
 				self.nextAlarm = newAlarmTime
+				ct = '<br><b>Current time ' + currTime +'</b></br>'
 				if newAlarmTime is None :
-					self.prnt.nextAlarm.emit('<b>Not alarmed.</b>')
+					self.prnt.nextAlarm.emit('<b>Not alarmed.</b>' + ct)
 				else :
-					self.prnt.nextAlarm.emit('<b>Next alarm in ' + newAlarmTime +'</b>')
+					self.prnt.nextAlarm.emit('<b>Next alarm in ' + newAlarmTime +'</b>' + ct)
 			if self.runKey : self.msleep(pause)
 
 	def stop(self): self.runKey = False
