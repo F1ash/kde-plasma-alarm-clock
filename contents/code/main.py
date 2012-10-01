@@ -21,21 +21,21 @@ class CheckAlarmList(QThread):
 		while self.runKey :
 			alarmNow, msgs, sounds, cmds, newAlarmTime, pause, currTime = \
 					alarmTime(self.prnt.Settings, self.prnt.alarmTimesList)
-			if alarmNow :
+			if self.runKey and alarmNow :
 				self.prnt.alarm.emit(msgs, sounds, cmds)
-			if self.nextAlarm != newAlarmTime :
-				self.nextAlarm = newAlarmTime
-				ct = '<br><b>Current time ' + currTime +'</b></br>'
-				if newAlarmTime is None :
-					self.prnt.nextAlarm.emit('<b>Not alarmed.</b>' + ct)
-				else :
-					self.prnt.nextAlarm.emit('<b>Next alarm in ' + newAlarmTime +'</b>' + ct)
+			ct = '<br><b>Current time ' + currTime +'</b></br>'
+			if self.runKey and newAlarmTime is None :
+				self.prnt.nextAlarm.emit('<b>Not alarmed.</b>' + ct)
+			else :
+				if self.nextAlarm != newAlarmTime :
+					self.nextAlarm = newAlarmTime
+				if self.runKey :
+					self.prnt.nextAlarm.emit('<b>Next alarm in ' + self.nextAlarm +'</b>' + ct)
 			if self.runKey : self.msleep(pause)
 
 	def stop(self): self.runKey = False
 
-	def __del__(self):
-		self.stop()
+	def __del__(self): self.stop()
 
 class plasmaAlarmClock(plasmascript.Applet):
 	alarm = pyqtSignal(list, list, list)
@@ -96,6 +96,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.timer.timeout.connect(self.blink)
 		if self.alarmed : self.alarmIcon.clicked.emit()
 		else : self.setNewToolTip('Stopped')
+		self.connect(self.applet, SIGNAL('destroyed()'), self.eventClose)
 
 	def changeActivity(self):
 		if hasattr(self, 'checkAlarmList') and self.checkAlarmList is not None :
@@ -111,11 +112,17 @@ class plasmaAlarmClock(plasmascript.Applet):
 			self.checkAlarmList.start()
 
 	def blink(self):
-		self.alarmIcon.setIcon(self.alarm2IconPath)
-		QTimer.singleShot(250, self.unBlink)
+		try :
+			self.alarmIcon.setIcon(self.alarm2IconPath)
+			QTimer().singleShot(250, self.unBlink)
+		except Exception, err : print err, 'in blink()'
+		finally : pass
 
 	def unBlink(self):
-		self.alarmIcon.setIcon(self.alarm1IconPath)
+		try :
+			self.alarmIcon.setIcon(self.alarm1IconPath)
+		except Exception, err : print err, 'in unBlink()'
+		finally : pass
 
 	def showAlarm(self, msgs, sounds, cmds):
 		#print msgs, sounds, cmds, 'alarmed'
@@ -169,15 +176,19 @@ class plasmaAlarmClock(plasmascript.Applet):
 	def configDenied(self):
 		self.dialog.done(0)
 
-	def __del__(self):
+	def eventClose(self):
 		self.timer.stop()
-		self.alarm.disconnect(self.showAlarm)
-		self.nextAlarm.disconnect(self.setNewToolTip)
-		self.alarmIcon.clicked.disconnect(self.changeActivity)
 		self.timer.timeout.disconnect(self.blink)
 		if hasattr(self, 'checkAlarmList') :
 			self.checkAlarmList.stop()
 			del self.checkAlarmList
+			self.checkAlarmList = None
+		self.alarm.disconnect(self.showAlarm)
+		self.nextAlarm.disconnect(self.setNewToolTip)
+		#self.alarmIcon.clicked.disconnect(self.changeActivity)
+		print 'AlarmClock is closed'
+
+	def __del__(self): self.eventClose()
 
 def CreateApplet(parent):
 	return plasmaAlarmClock(parent)

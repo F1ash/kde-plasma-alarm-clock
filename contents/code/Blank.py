@@ -81,7 +81,7 @@ class Blank(QDialog):
 	def searchPath(self):
 		fileName = QFileDialog.getOpenFileName(self, 'Path_to_sound', '~', "Sound (*.wav *.ogg)")
 		name_ = fileName.toLocal8Bit().data()
-		if not stat.S_ISLNK(os.lstat(name_).st_mode) and os.access(name_, os.R_OK) :
+		if name_ != '' and not stat.S_ISLNK(os.lstat(name_).st_mode) and os.access(name_, os.R_OK) :
 			self.soundPath.setText(fileName)
 		else :
 			showHelp = QMessageBox.information(self, 'Error', "Bad path", buttons = QMessageBox.Ok)
