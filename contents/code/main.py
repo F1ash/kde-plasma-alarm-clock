@@ -24,6 +24,7 @@ class CheckAlarmList(QThread):
 			if self.runKey and alarmNow :
 				self.prnt.alarm.emit(msgs, sounds, cmds)
 			ct = '<br><b>Current time ' + currTime +'</b></br>'
+			self.prnt.alarmIcon.setText(currTime)
 			if self.runKey and newAlarmTime is None :
 				self.prnt.nextAlarm.emit('<b>Not alarmed.</b>' + ct)
 			else :
@@ -75,14 +76,15 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.alarmIcon = Plasma.IconWidget()
 		self.alarmIcon.setIcon(self.alarmIconPath)
 		if self.applet.formFactor() == Plasma.Horizontal :
-			self.alarmIcon.setOrientation(Qt.Horizontal)
+			#self.alarmIcon.setOrientation(Qt.Horizontal)
 			self.layout.setOrientation(Qt.Horizontal)
 		else :
-			self.alarmIcon.setOrientation(Qt.Vertical)
 			self.layout.setOrientation(Qt.Vertical)
+		self.alarmIcon.setOrientation(Qt.Vertical)
 		self.layout.addItem(self.alarmIcon)
 
 		self.layout.setAlignment(self.alarmIcon, Qt.AlignLeft)
+		self.layout.setContentsMargins(0, 0, 0, 0)
 		self.layout.setSpacing(0)
 		self.setLayout(self.layout)
 		self.setHasConfigurationInterface(True)
