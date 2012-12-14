@@ -24,7 +24,7 @@ class CheckAlarmList(QThread):
 			if self.runKey and alarmNow :
 				self.prnt.alarm.emit(msgs, sounds, cmds)
 			ct = '<br><b>Current time ' + currTime +'</b></br>'
-			self.prnt.alarmIcon.setText(currTime)
+			self.prnt.LCD.display(currTime)
 			if self.runKey and newAlarmTime is None :
 				self.prnt.nextAlarm.emit('<b>Not alarmed.</b>' + ct)
 			else :
@@ -70,23 +70,39 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.alarmTimesList = getAlarmTimesList(self.Settings)
 		#print self.alarmTimesList
 
+	def initLayout(self):
+		if hasattr(self.layout,'count') :
+			while self.layout.count() > 0 :
+				idx = self.layout.count()-1
+				self.layout.itemAt(idx).setVisible(False)
+				self.layout.removeAt(idx)
+		self.layout.setOrientation(Qt.Vertical)
+		if self.config().readEntry('Icon Show', 'True') == 'True' :
+			self.layout.addItem(self.alarmIcon)
+			self.layout.setAlignment(self.alarmIcon, Qt.AlignCenter)
+			self.alarmIcon.setVisible(True)
+		self.layout.setAlignment(self.timeLCD, Qt.AlignCenter)
+		if self.config().readEntry('Time Show', 'True') == 'True' :
+			self.layout.addItem(self.timeLCD)
+			self.timeLCD.setVisible(True)
+
+		self.layout.setContentsMargins(0, 0, 0, 0)
+		self.layout.setSpacing(0)
+		self.setLayout(self.layout)
+
 	def init(self):
 		self.initVar()
 		self.layout = QGraphicsLinearLayout(self.applet)
 		self.alarmIcon = Plasma.IconWidget()
-		self.alarmIcon.setIcon(self.alarmIconPath)
-		if self.applet.formFactor() == Plasma.Horizontal :
-			#self.alarmIcon.setOrientation(Qt.Horizontal)
-			self.layout.setOrientation(Qt.Horizontal)
-		else :
-			self.layout.setOrientation(Qt.Vertical)
-		self.alarmIcon.setOrientation(Qt.Vertical)
-		self.layout.addItem(self.alarmIcon)
+		self.alarmIcon.setIcon(QIcon().fromTheme('alarm-clock', QIcon(':/'+self.alarmIconPath)))
 
-		self.layout.setAlignment(self.alarmIcon, Qt.AlignLeft)
-		self.layout.setContentsMargins(0, 0, 0, 0)
-		self.layout.setSpacing(0)
-		self.setLayout(self.layout)
+		self.LCD = QLCDNumber()
+		self.LCD.setSegmentStyle(QLCDNumber.Flat)
+		self.LCD.setStyleSheet('QWidget {background: rgba(0,0,0,0);}')
+		self.LCD.setSmallDecimalPoint(True)
+		self.timeLCD = QGraphicsProxyWidget()
+		self.timeLCD.setWidget(self.LCD)
+		self.initLayout()
 		self.setHasConfigurationInterface(True)
 
 		self.setNewToolTip()
@@ -116,6 +132,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 	def blink(self):
 		try :
 			self.alarmIcon.setIcon(self.alarm2IconPath)
+			self.LCD.setStyleSheet('QWidget {background: rgba(0,0,0,16);}')
 			QTimer().singleShot(250, self.unBlink)
 		except Exception, err : print err, 'in blink()'
 		finally : pass
@@ -123,6 +140,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 	def unBlink(self):
 		try :
 			self.alarmIcon.setIcon(self.alarm1IconPath)
+			self.LCD.setStyleSheet('QWidget {background: rgba(0,0,0,0);}')
 		except Exception, err : print err, 'in unBlink()'
 		finally : pass
 
@@ -174,6 +192,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.appletSettings.refreshSettings(self)
 		self.initVar()
 		self.dialog.done(0)
+		self.initLayout()
 
 	def configDenied(self):
 		self.dialog.done(0)

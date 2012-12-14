@@ -25,6 +25,28 @@ class AppletSettings(QWidget):
 		self.clockEnable.setCheckState(value)
 		self.layout.addWidget(self.clockEnable, 0, 0, Qt.AlignRight)
 
+		self.iconShowLabel = QLabel('Icon show :')
+		self.layout.addWidget(self.iconShowLabel, 1, 0, Qt.AlignLeft)
+
+		self.iconShow = QCheckBox()
+		if self.obj.config().readEntry('Icon Show', 'True') == 'True' :
+			value = Qt.Checked
+		else:
+			value = Qt.Unchecked
+		self.iconShow.setCheckState(value)
+		self.layout.addWidget(self.iconShow, 1, 0, Qt.AlignRight)
+
+		self.timeShowLabel = QLabel('Time show :')
+		self.layout.addWidget(self.timeShowLabel, 2, 0, Qt.AlignLeft)
+
+		self.timeShow = QCheckBox()
+		if self.obj.config().readEntry('Time Show', 'True') == 'True' :
+			value = Qt.Checked
+		else:
+			value = Qt.Unchecked
+		self.timeShow.setCheckState(value)
+		self.layout.addWidget(self.timeShow, 2, 0, Qt.AlignRight)
+
 		self.alarmList = QListWidget()
 		for _name in self.Settings.childGroups() :
 			self.Settings.beginGroup(_name)
@@ -40,15 +62,29 @@ class AppletSettings(QWidget):
 		self.alarmList.setContextMenuPolicy(Qt.CustomContextMenu)
 		self.alarmList.customContextMenuRequested.connect(self.itemContextMenuQuired)
 
-		self.addAlarm = QPushButton('Add')
-		self.delAlarm = QPushButton('Del')
+		add = QIcon().fromTheme('list-add')
+		self.addAlarm = QPushButton(add, '')
+		self.addAlarm.setToolTip('Add to Alarms')
+		_del = QIcon().fromTheme('list-remove')
+		self.delAlarm = QPushButton(_del, '')
+		self.delAlarm.setToolTip('Delete from Alarms')
 		self.addAlarm.clicked.connect(self.addAlarmItem)
 		self.delAlarm.clicked.connect(self.delAlarmItem)
-		self.layout.addWidget(self.alarmList, 1, 0)
-		self.layout.addWidget(self.addAlarm, 2, 0, Qt.AlignLeft)
-		self.layout.addWidget(self.delAlarm, 2, 0, Qt.AlignRight)
+		self.iconShow.stateChanged.connect(self.iconStateChanged)
+		self.timeShow.stateChanged.connect(self.timeStateChanged)
+		self.layout.addWidget(self.alarmList, 3, 0)
+		self.layout.addWidget(self.addAlarm, 4, 0, Qt.AlignLeft)
+		self.layout.addWidget(self.delAlarm, 4, 0, Qt.AlignRight)
 
 		self.setLayout(self.layout)
+
+	def iconStateChanged(self):
+		if not self.iconShow.isChecked() and not self.timeShow.isChecked() :
+			self.timeShow.setCheckState(Qt.Checked)
+
+	def timeStateChanged(self):
+		if not self.iconShow.isChecked() and not self.timeShow.isChecked() :
+			self.iconShow.setCheckState(Qt.Checked)
 
 	def addAlarmItem(self):
 		_addItem = Blank(self.obj, None, self)
@@ -75,6 +111,8 @@ class AppletSettings(QWidget):
 			#print item.text(), value
 			self.Settings.endGroup()
 		self.Settings.setValue('Alarm Clock Enable', str(self.clockEnable.isChecked()))
+		self.obj.config().writeEntry('Icon Show', str(self.iconShow.isChecked()))
+		self.obj.config().writeEntry('Time Show', str(self.timeShow.isChecked()))
 		self.Settings.sync()
 
 	def eventClose(self, event):
