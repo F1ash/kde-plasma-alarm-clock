@@ -1,5 +1,5 @@
 Name: kde-plasma-alarm-clock
-Version: 1.6
+Version: 1.7
 Release: 1%{?dist}
 Summary: Simple AlarmClock plasmoid.
 Summary(ru): Простой плазмоид-Будильник.
@@ -36,8 +36,12 @@ make install DESTDIR=$RPM_BUILD_ROOT/usr
 %files
 %{_kde4_datadir}/kde4/services/%{name}.desktop
 %{_kde4_appsdir}/plasma/plasmoids/%{name}
+%doc README
 
 %changelog
+* Sat Dec 15 2012 Fl@sh <kaperang07@gmail.com> - 1.7-1
+- version updated
+
 * Wed Sep 26 2012 Fl@sh <kaperang07@gmail.com> - 1.6-1
 - fixed package requires
 - version updated

@@ -1,3 +1,10 @@
 # LANG=en_US.UTF-8
 
-Simple AlarmClock.
+Simple AlarmClock plasmoid. Support list of alarms,
+custom sound, message and command for each alarm node.
+Works without Akonadi.
+
+# LANG=ru_RU.UTF-8
+Простой плазмоид-Будильник. Может будить по назначенному списку,
+для каждого сигнала можно задать свой звук, сообщение и команду.
+Не нуждается в Akonadi.
