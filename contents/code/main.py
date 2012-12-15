@@ -17,22 +17,26 @@ class CheckAlarmList(QThread):
 		self.nextAlarm = ''
 		self.runKey = True
 
+	def check_alarm(self):
+		alarmNow, msgs, sounds, cmds, newAlarmTime, pause, currTime = \
+				alarmTime(self.prnt.Settings, self.prnt.alarmTimesList)
+		if self.runKey and alarmNow and not self.prnt.paused :
+			self.prnt.alarm.emit(msgs, sounds, cmds)
+		ct = '<br><b>Current time ' + currTime +'</b></br>'
+		self.prnt.LCD.display(currTime)
+		if self.runKey and newAlarmTime is None :
+			self.prnt.nextAlarm.emit('<b>Not alarmed.</b>' + ct)
+		else :
+			if self.nextAlarm != newAlarmTime :
+				self.nextAlarm = newAlarmTime
+			if self.runKey :
+				msg = 'Stopped' if self.prnt.paused else 'Next alarm in ' + self.nextAlarm
+				self.prnt.nextAlarm.emit('<b>' + msg +'</b>' + ct)
+		return pause
+
 	def run(self):
 		while self.runKey :
-			alarmNow, msgs, sounds, cmds, newAlarmTime, pause, currTime = \
-					alarmTime(self.prnt.Settings, self.prnt.alarmTimesList)
-			if self.runKey and alarmNow and not self.prnt.paused :
-				self.prnt.alarm.emit(msgs, sounds, cmds)
-			ct = '<br><b>Current time ' + currTime +'</b></br>'
-			self.prnt.LCD.display(currTime)
-			if self.runKey and newAlarmTime is None :
-				self.prnt.nextAlarm.emit('<b>Not alarmed.</b>' + ct)
-			else :
-				if self.nextAlarm != newAlarmTime :
-					self.nextAlarm = newAlarmTime
-				if self.runKey :
-					msg = 'Stopped' if self.prnt.paused else 'Next alarm in ' + self.nextAlarm
-					self.prnt.nextAlarm.emit('<b>' + msg +'</b>' + ct)
+			pause = self.check_alarm()
 			if self.runKey : self.msleep(pause)
 
 	def stop(self): self.runKey = False
@@ -62,6 +66,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.alarm2IconPath = self.appletWD + '/icons/alarm2.png'
 		self.alarm_disabledIconPath = self.appletWD + '/icons/alarm_disabled.png'
 		#print self.alarmIconPath, ':', self.appletWD
+		self.paused = True
 
 	def initVar(self):
 		if self.Settings.value('Alarm Clock Enable', 'True') == 'True' :
@@ -70,7 +75,6 @@ class plasmaAlarmClock(plasmascript.Applet):
 			self.alarmed = False
 		self.alarmTimesList = getAlarmTimesList(self.Settings)
 		#print self.alarmTimesList
-		self.paused = True
 
 	def initLayout(self):
 		if hasattr(self.layout,'count') :
@@ -113,13 +117,13 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.alarm.connect(self.showAlarm)
 		self.nextAlarm.connect(self.setNewToolTip)
 		self.alarmIcon.clicked.connect(self.changeActivity)
+		self.checkAlarmList = CheckAlarmList(self)
+		self.checkAlarmList.start()
 		self.timer = QTimer()
 		self.timer.timeout.connect(self.blink)
 		if self.alarmed : self.alarmIcon.clicked.emit()
 		else : self.setNewToolTip('Stopped')
 		self.connect(self.applet, SIGNAL('destroyed()'), self.eventClose)
-		self.checkAlarmList = CheckAlarmList(self)
-		self.checkAlarmList.start()
 
 	def mousePressEvent(self, ev):
 		if ev.type() == QEvent.GraphicsSceneMousePress :
@@ -138,6 +142,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 			self.alarmIcon.setIcon(self.alarm1IconPath)
 			self.timer.start(1000)
 			self.paused = False
+			self.checkAlarmList.check_alarm()
 
 	def blink(self):
 		try :
@@ -203,6 +208,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.initVar()
 		self.dialog.done(0)
 		self.initLayout()
+		self.checkAlarmList.check_alarm()
 
 	def configDenied(self):
 		self.dialog.done(0)
