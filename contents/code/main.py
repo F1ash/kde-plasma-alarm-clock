@@ -31,7 +31,8 @@ class CheckAlarmList(QThread):
 				if self.nextAlarm != newAlarmTime :
 					self.nextAlarm = newAlarmTime
 				if self.runKey :
-					self.prnt.nextAlarm.emit('<b>Next alarm in ' + self.nextAlarm +'</b>' + ct)
+					msg = 'Stopped' if self.prnt.paused else 'Next alarm in ' + self.nextAlarm
+					self.prnt.nextAlarm.emit('<b>' + msg +'</b>' + ct)
 			if self.runKey : self.msleep(pause)
 
 	def stop(self): self.runKey = False
