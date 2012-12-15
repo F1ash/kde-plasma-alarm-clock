@@ -21,7 +21,7 @@ class CheckAlarmList(QThread):
 		while self.runKey :
 			alarmNow, msgs, sounds, cmds, newAlarmTime, pause, currTime = \
 					alarmTime(self.prnt.Settings, self.prnt.alarmTimesList)
-			if self.runKey and alarmNow :
+			if self.runKey and alarmNow and not self.prnt.paused :
 				self.prnt.alarm.emit(msgs, sounds, cmds)
 			ct = '<br><b>Current time ' + currTime +'</b></br>'
 			self.prnt.LCD.display(currTime)
@@ -69,6 +69,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 			self.alarmed = False
 		self.alarmTimesList = getAlarmTimesList(self.Settings)
 		#print self.alarmTimesList
+		self.paused = True
 
 	def initLayout(self):
 		if hasattr(self.layout,'count') :
@@ -102,6 +103,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.LCD.setSmallDecimalPoint(True)
 		self.timeLCD = QGraphicsProxyWidget()
 		self.timeLCD.setWidget(self.LCD)
+		self.timeLCD.mouseReleaseEvent = self.mouseReleaseEvent
 		self.initLayout()
 		self.setHasConfigurationInterface(True)
 
@@ -115,19 +117,26 @@ class plasmaAlarmClock(plasmascript.Applet):
 		if self.alarmed : self.alarmIcon.clicked.emit()
 		else : self.setNewToolTip('Stopped')
 		self.connect(self.applet, SIGNAL('destroyed()'), self.eventClose)
+		self.checkAlarmList = CheckAlarmList(self)
+		self.checkAlarmList.start()
+
+	def mousePressEvent(self, ev):
+		if ev.type() == QEvent.GraphicsSceneMousePress :
+			ev.accept()
+	def mouseReleaseEvent(self, ev):
+		if ev.type() == QEvent.GraphicsSceneMouseRelease :
+			self.changeActivity()
 
 	def changeActivity(self):
-		if hasattr(self, 'checkAlarmList') and self.checkAlarmList is not None :
-			self.checkAlarmList.stop()
-			del self.checkAlarmList
+		if not self.paused :
 			self.timer.stop()
 			self.alarmIcon.setIcon(self.alarm_disabledIconPath)
 			self.setNewToolTip('Stopped')
+			self.paused = True
 		else :
 			self.alarmIcon.setIcon(self.alarm1IconPath)
 			self.timer.start(1000)
-			self.checkAlarmList = CheckAlarmList(self)
-			self.checkAlarmList.start()
+			self.paused = False
 
 	def blink(self):
 		try :
