@@ -110,6 +110,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.layout.setAlignment(self.timeLCD, Qt.AlignCenter)
 		if self.config().readEntry('Time Show', 'True') == 'True' :
 			self.layout.addItem(self.timeLCD)
+			self.layout.setAlignment(self.timeLCD, Qt.AlignCenter)
 			self.timeLCD.setVisible(True)
 
 		self.layout.setContentsMargins(0, 0, 0, 0)
@@ -121,6 +122,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.layout = QGraphicsLinearLayout(self.applet)
 		self.alarmIcon = Plasma.IconWidget()
 		self.alarmIcon.setIcon(QIcon().fromTheme('alarm-clock', QIcon(':/'+self.alarmIconPath)))
+		self.alarmIcon.mouseReleaseEvent = self.mouseReleaseEvent
 
 		self.LCD = QLCDNumber()
 		self.LCD.setSegmentStyle(QLCDNumber.Flat)
@@ -136,12 +138,15 @@ class plasmaAlarmClock(plasmascript.Applet):
 
 		self.alarm.connect(self.showAlarm)
 		self.nextAlarm.connect(self.setNewToolTip)
-		self.alarmIcon.clicked.connect(self.changeActivity)
 		self.checkAlarmList = CheckAlarmList(self)
+		self.checkAlarmList.started.connect(self.start)
 		self.checkAlarmList.start()
+
+	def start(self):
+		self.checkAlarmList.started.disconnect(self.start)
 		self.timer = QTimer()
 		self.timer.timeout.connect(self.blink)
-		if self.alarmed : self.alarmIcon.clicked.emit()
+		if self.alarmed : self.changeActivity()
 		else : self.setNewToolTip('Stopped')
 		self.connect(self.applet, SIGNAL('destroyed()'), self.eventClose)
 
@@ -238,11 +243,11 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.timer.timeout.disconnect(self.blink)
 		if hasattr(self, 'checkAlarmList') :
 			self.checkAlarmList.stop()
+			self.checkAlarmList.quit()
 			del self.checkAlarmList
 			self.checkAlarmList = None
 		self.alarm.disconnect(self.showAlarm)
 		self.nextAlarm.disconnect(self.setNewToolTip)
-		#self.alarmIcon.clicked.disconnect(self.changeActivity)
 		print 'AlarmClock is closed'
 
 	def __del__(self): self.eventClose()
