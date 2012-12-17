@@ -108,7 +108,6 @@ class plasmaAlarmClock(plasmascript.Applet):
 			self.layout.addItem(self.alarmIcon)
 			self.layout.setAlignment(self.alarmIcon, Qt.AlignCenter)
 			self.alarmIcon.setVisible(True)
-		self.layout.setAlignment(self.timeLCD, Qt.AlignCenter)
 		if self.config().readEntry('Time Show', 'True') == 'True' :
 			self.layout.addItem(self.timeLCD)
 			self.layout.setAlignment(self.timeLCD, Qt.AlignCenter)
