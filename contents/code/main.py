@@ -44,6 +44,7 @@ class CheckAlarmList(QThread):
 			self.prnt.alarm.emit(msgs, sounds, cmds)
 		ct = '<br><b>Current time ' + currTime +'</b></br>'
 		self.prnt.LCD.display(currTime)
+		self.prnt.currTime = currTime
 		if self.runKey and newAlarmTime is None :
 			self.prnt.nextAlarm.emit('<b>Not alarmed.</b>' + ct)
 		else :
@@ -173,6 +174,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		try :
 			self.alarmIcon.setIcon(self.alarm2IconPath)
 			self.LCD.setStyleSheet('QWidget {background: rgba(0,0,0,16);}')
+			self.LCD.display(self.currTime.replace(':', ' '))
 			QTimer().singleShot(250, self.unBlink)
 		except Exception, err : print err, 'in blink()'
 		finally : pass
@@ -181,6 +183,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		try :
 			self.alarmIcon.setIcon(self.alarm1IconPath)
 			self.LCD.setStyleSheet('QWidget {background: rgba(0,0,0,0);}')
+			self.LCD.display(self.currTime)
 		except Exception, err : print err, 'in unBlink()'
 		finally : pass
 
