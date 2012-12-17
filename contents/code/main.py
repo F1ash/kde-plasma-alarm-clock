@@ -198,7 +198,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 			#print (cmd)
 			if cmd.isEmpty() : continue
 			self.play = QProcess()
-			self.play.start('/usr/bin/sh', QStringList() << cmd)
+			self.play.start('/usr/bin/sh', QStringList() << '-c' << cmd)
 		for msg in msgs :
 			if msg.isEmpty() : continue
 			notify = KNotification.event(\
