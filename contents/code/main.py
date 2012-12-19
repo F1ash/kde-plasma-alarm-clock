@@ -26,43 +26,10 @@ from PyKDE4.kdeui import KPageDialog, KDialog, KNotification
 from PyKDE4.kdecore import KStandardDirs as KSD
 from PyKDE4.plasma import Plasma
 from PyKDE4 import plasmascript
-import os.path, os
+from checkAlarmList import CheckAlarmList
 from AppletSettings import AppletSettings
-from Functions import *
-
-class CheckAlarmList(QThread):
-	def __init__(self, parent = None):
-		QThread.__init__(self, parent)
-		self.prnt = parent
-		self.nextAlarm = ''
-		self.runKey = True
-
-	def check_alarm(self):
-		alarmNow, msgs, sounds, cmds, newAlarmTime, pause, currTime = \
-				alarmTime(self.prnt.Settings, self.prnt.alarmTimesList)
-		if self.runKey and alarmNow and not self.prnt.paused :
-			self.prnt.alarm.emit(msgs, sounds, cmds)
-		ct = '<br><b>Current time ' + currTime +'</b></br>'
-		self.prnt.LCD.display(currTime)
-		self.prnt.currTime = currTime
-		if self.runKey and newAlarmTime is None :
-			self.prnt.nextAlarm.emit('<b>Not alarmed.</b>' + ct)
-		else :
-			if self.nextAlarm != newAlarmTime :
-				self.nextAlarm = newAlarmTime
-			if self.runKey :
-				msg = 'Stopped' if self.prnt.paused else 'Next alarm in ' + self.nextAlarm
-				self.prnt.nextAlarm.emit('<b>' + msg +'</b>' + ct)
-		return pause
-
-	def run(self):
-		while self.runKey :
-			pause = self.check_alarm()
-			if self.runKey : self.msleep(pause)
-
-	def stop(self): self.runKey = False
-
-	def __del__(self): self.stop()
+from Functions import getAlarmTimesList
+import os
 
 class plasmaAlarmClock(plasmascript.Applet):
 	alarm = pyqtSignal(list, list, list)
@@ -188,17 +155,18 @@ class plasmaAlarmClock(plasmascript.Applet):
 
 	def showAlarm(self, msgs, sounds, cmds):
 		#print msgs, sounds, cmds, 'alarmed'
+		playSounds = []
+		runCmds = []
 		for sound in sounds :
-			self.play = QProcess()
 			if not os.path.isfile(sound.toLocal8Bit().data()) :
 				sound = QString('/usr/share/sounds/pop.wav')
 				#print (sound)
-			self.play.start('/usr/bin/play', QStringList() << sound)
+			playSounds.append(QProcess())
+			playSounds.startDetached('/usr/bin/play', QStringList() << sound)
 		for cmd in cmds :
-			#print (cmd)
 			if cmd.isEmpty() : continue
-			self.play = QProcess()
-			self.play.start('/usr/bin/sh', QStringList() << '-c' << cmd)
+			runCmds.append(QProcess())
+			runCmds[len(runCmds)-1].startDetached('/usr/bin/sh', QStringList() << '-c' << cmd)
 		for msg in msgs :
 			if msg.isEmpty() : continue
 			notify = KNotification.event(\
