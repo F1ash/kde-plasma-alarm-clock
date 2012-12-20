@@ -138,16 +138,19 @@ class plasmaAlarmClock(plasmascript.Applet):
 
 	def blink(self):
 		try :
-			self.alarmIcon.setIcon(self.alarm2IconPath)
+			if self.alarmIcon.isVisible() :
+				self.alarmIcon.setIcon(self.alarm2IconPath)
 			self.LCD.setStyleSheet('QWidget {background: rgba(0,0,0,16);}')
-			self.LCD.display(self.currTime.replace(':', ' '))
+			if self.LCD.isVisible() :
+				self.LCD.display(self.currTime.replace(':', ' '))
 			QTimer().singleShot(250, self.unBlink)
 		except Exception, err : print err, 'in blink()'
 		finally : pass
 
 	def unBlink(self):
 		try :
-			self.alarmIcon.setIcon(self.alarm1IconPath)
+			if self.alarmIcon.isVisible() :
+				self.alarmIcon.setIcon(self.alarm1IconPath)
 			self.LCD.setStyleSheet('QWidget {background: rgba(0,0,0,0);}')
 			self.LCD.display(self.currTime)
 		except Exception, err : print err, 'in unBlink()'
@@ -162,7 +165,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 				sound = QString('/usr/share/sounds/pop.wav')
 				#print (sound)
 			playSounds.append(QProcess())
-			playSounds.startDetached('/usr/bin/play', QStringList() << sound)
+			playSounds[len(playSounds)-1].startDetached('/usr/bin/play', QStringList() << sound)
 		for cmd in cmds :
 			if cmd.isEmpty() : continue
 			runCmds.append(QProcess())
