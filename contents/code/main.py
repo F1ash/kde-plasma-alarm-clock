@@ -28,6 +28,7 @@ from PyKDE4.plasma import Plasma
 from PyKDE4 import plasmascript
 from checkAlarmList import CheckAlarmList
 from AppletSettings import AppletSettings
+from Colors import ColorWidget
 from Functions import getAlarmTimesList
 import os
 
@@ -83,6 +84,9 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.layout.setContentsMargins(0, 0, 0, 0)
 		self.layout.setSpacing(0)
 		self.setLayout(self.layout)
+		self.fontColour = 'QWidget {background: rgba(0,0,0,16); color: %s;}' % (self.config().readEntry("fontColour"))
+		self.unblinkColour = 'QWidget {background: rgba(0,0,0,0); color: %s;}' % (self.config().readEntry("unblinkColour"))
+		#print [self.fontColour, self.unblinkColour]
 
 	def init(self):
 		self.initVar()
@@ -140,7 +144,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		try :
 			if self.alarmIcon.isVisible() :
 				self.alarmIcon.setIcon(self.alarm2IconPath)
-			self.LCD.setStyleSheet('QWidget {background: rgba(0,0,0,16);}')
+			self.LCD.setStyleSheet(self.fontColour)
 			if self.LCD.isVisible() :
 				self.LCD.display(self.currTime.replace(':', ' '))
 			QTimer().singleShot(250, self.unBlink)
@@ -151,7 +155,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 		try :
 			if self.alarmIcon.isVisible() :
 				self.alarmIcon.setIcon(self.alarm1IconPath)
-			self.LCD.setStyleSheet('QWidget {background: rgba(0,0,0,0);}')
+			self.LCD.setStyleSheet(self.unblinkColour)
 			self.LCD.display(self.currTime)
 		except Exception, err : print err, 'in unBlink()'
 		finally : pass
@@ -189,6 +193,8 @@ class plasmaAlarmClock(plasmascript.Applet):
 	def createConfigurationInterface(self, parent):
 		self.appletSettings = AppletSettings(self, parent)
 		parent.addPage(self.appletSettings, "Settings")
+		self.colorSelect = ColorWidget(self, parent)
+		parent.addPage(self.colorSelect, "Color")
 		self.connect(parent, SIGNAL("okClicked()"), self.configAccepted)
 		self.connect(parent, SIGNAL("cancelClicked()"), self.configDenied)
 
@@ -203,6 +209,7 @@ class plasmaAlarmClock(plasmascript.Applet):
 
 	def configAccepted(self):
 		self.appletSettings.refreshSettings(self)
+		self.colorSelect.refreshSettings()
 		self.initVar()
 		self.dialog.done(0)
 		self.initLayout()
