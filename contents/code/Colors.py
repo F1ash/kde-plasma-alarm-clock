@@ -29,7 +29,6 @@ class ColorWidget(QWidget):
 		self.prnt = parent
 		self.obj = obj
 		self.Settings = obj.config()
-		self.colourIcon = QIcon().fromTheme('color')
 		colorNames = QColor().colorNames()
 
 		fontColour = self.Settings.readEntry('fontColour', 'red').toString()
