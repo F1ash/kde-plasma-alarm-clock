@@ -31,8 +31,8 @@ class ColorWidget(QWidget):
 		self.Settings = obj.config()
 		colorNames = QColor().colorNames()
 
-		fontColour = self.Settings.readEntry('fontColour', 'red').toString()
-		unblinkColour = self.Settings.readEntry('unblinkColour', 'blue').toString()
+		fontColour = self.Settings.readEntry('fontColour', 'yellow').toString()
+		unblinkColour = self.Settings.readEntry('unblinkColour', 'silver').toString()
 
 		self.layout = QVBoxLayout()
 

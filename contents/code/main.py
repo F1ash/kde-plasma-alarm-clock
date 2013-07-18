@@ -84,8 +84,8 @@ class plasmaAlarmClock(plasmascript.Applet):
 		self.layout.setContentsMargins(0, 0, 0, 0)
 		self.layout.setSpacing(0)
 		self.setLayout(self.layout)
-		self.fontColour = 'QWidget {background: rgba(0,0,0,16); color: %s;}' % (self.config().readEntry("fontColour"))
-		self.unblinkColour = 'QWidget {background: rgba(0,0,0,0); color: %s;}' % (self.config().readEntry("unblinkColour"))
+		self.fontColour = 'QWidget {background: rgba(0,0,0,16); color: %s;}' % (self.config().readEntry("fontColour", "yellow").toString())
+		self.unblinkColour = 'QWidget {background: rgba(0,0,0,0); color: %s;}' % (self.config().readEntry("unblinkColour", "silver").toString())
 		#print [self.fontColour, self.unblinkColour]
 
 	def init(self):
